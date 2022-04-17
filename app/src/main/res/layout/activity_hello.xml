@@ -13,10 +13,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome to PBL5 app"
+            android:text="Welcome to PBL5 APP"
             android:fontFamily="sans-serif-black"
             android:textSize="33dp"
-            android:textColor="@color/teal_700"
+            android:textColor="#4AA84D"
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
             tools:ignore="HardcodedText,SpUsage" />
@@ -36,15 +36,17 @@
             android:id="@+id/layout_seri"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
             <EditText
                 android:id="@+id/input_key"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Mã sô seri két sắt"
-                android:fontFamily="sans-serif-black"
                 android:layout_marginHorizontal="50dp"
+                android:fontFamily="sans-serif-black"
+                android:hint="Mã sô seri két sắt"
                 android:paddingHorizontal="40dp"
                 android:singleLine="true"
+                android:maxLength="15"
                 android:textAlignment="center" />
 
             <ImageView
@@ -68,6 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Mã pin"
+                android:maxLength="15"
                 android:fontFamily="sans-serif-black"
                 android:layout_marginHorizontal="50dp"
                 android:paddingHorizontal="40dp"
@@ -95,6 +98,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Tạo mã pin mới"
+                android:maxLength="15"
                 android:fontFamily="sans-serif-black"
                 android:layout_marginHorizontal="50dp"
                 android:paddingHorizontal="40dp"
@@ -112,19 +116,19 @@
                 app:tint="#0FD112"
                 android:visibility="invisible"/>
         </RelativeLayout>
-
-        <androidx.cardview.widget.CardView
-            android:layout_gravity="center"
+        <Button
+            android:id="@+id/btn_submit"
             android:layout_marginVertical="30dp"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="10dp">
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Continue"/>
-        </androidx.cardview.widget.CardView>
+            android:enabled="false"
+            android:textColor="#CDCDCD"
+            android:backgroundTint="#989898"
+            android:text="Agree and Continue"
+            android:textSize="16dp"
+            android:fontFamily="sans-serif-black"
+            android:textAllCaps="true"
+            tools:ignore="HardcodedText,SpUsage" />
     </LinearLayout>
-
-
 </ScrollView>
