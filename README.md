@@ -13,3 +13,4 @@
 26/04/2022:
 + đang còn lỗi và chưa test nhiều, mấy bạn chưa cần tạo exception 😥
 + mục (1) mấy pạn có thêm, sửa dữ liệu ảnh thì mỗi thư mục (của mỗi người) thì thêm 4-5 ảnh vô ha 🙉
++ mấy file .py và thư mục khác :v thì kệ nó :v
