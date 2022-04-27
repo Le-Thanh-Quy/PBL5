@@ -13,12 +13,20 @@ import android.view.View;
 import android.view.animation.TranslateAnimation;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.quyhoangtrinhvuteam.pbl5.R;
 import com.quyhoangtrinhvuteam.pbl5.databinding.ActivityHelloBinding;
+import com.quyhoangtrinhvuteam.pbl5.model.FirebaseDB;
 
 public class HelloActivity extends AppCompatActivity {
 
     ActivityHelloBinding binding;
+    
+    private String serialCode;
+    private String pinCode;
+    private String newPinCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,14 +36,24 @@ public class HelloActivity extends AppCompatActivity {
 
 
         checkFocusChange();
-        checkSeri();
-        checkPass();
-        checkNewPass();
-
+        serialTextChange();
+        PinTextChage();
+        checkNewPin();
+        login();
     }
 
+    private void login() {
+        binding.btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(HelloActivity.this, "Main App", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // cuộn xuống cuối cùng khi focus vào một trường edittext
     private void checkFocusChange() {
-        binding.inputKey.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.inputSerial.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
@@ -44,7 +62,7 @@ public class HelloActivity extends AppCompatActivity {
             }
         });
 
-        binding.inputKeyPass.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.inputPin.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
@@ -53,7 +71,7 @@ public class HelloActivity extends AppCompatActivity {
             }
         });
 
-        binding.inputKeyNewPass.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.inputNewPin.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
@@ -63,9 +81,9 @@ public class HelloActivity extends AppCompatActivity {
         });
     }
 
-
-    private void checkSeri() {
-        binding.inputKey.addTextChangedListener(new TextWatcher() {
+    
+    private void serialTextChange() {
+        binding.inputSerial.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -73,41 +91,14 @@ public class HelloActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                if (charSequence.toString().equals("quy")) {
-                    binding.imgCheck.setVisibility(View.VISIBLE);
-                    binding.layoutPass.setVisibility(View.VISIBLE);
-                    binding.layoutPass.setAlpha(0.0f);
-                    binding.layoutPass.animate()
-                            .translationYBy(binding.layoutPass.getHeight() * -1)
-                            .translationY(0)
-                            .alpha(1.0f)
-                            .setDuration(600)
-                            .setListener(null);
-                    binding.inputKeyPass.requestFocus();
+                if (charSequence.length() == 10) {
+                    checkSerialCorrect(charSequence.toString());
                 } else {
-                    binding.imgCheck.setVisibility(View.GONE);
-                    if (binding.layoutPass.getVisibility() == View.VISIBLE) {
-                        String s = binding.inputKeyPass.getText().toString();
-                        binding.inputKeyPass.setText(" " + s + " ");
-                        binding.layoutPass.animate()
-                                .translationYBy(binding.layoutPass.getHeight())
-                                .translationY(0)
-                                .setDuration(600)
-                                .alpha(0f)
-                                .setListener(new AnimatorListenerAdapter() {
-                                    @Override
-                                    public void onAnimationEnd(Animator animation) {
-                                        super.onAnimationEnd(animation);
-                                        binding.layoutPass.setVisibility(View.GONE);
-                                        binding.layoutNewPass.setVisibility(View.GONE);
-                                        binding.inputKeyNewPass.setText("");
-                                        binding.inputKeyPass.setText("");
-                                    }
-                                });
-                    }
-
+                    binding.imgCheckSerial.setVisibility(View.GONE);
+                    hideInputPin();
                 }
+
+
             }
 
             @Override
@@ -117,8 +108,71 @@ public class HelloActivity extends AppCompatActivity {
         });
     }
 
-    private void checkPass() {
-        binding.inputKeyPass.addTextChangedListener(new TextWatcher() {
+
+    // kiểm tra serial có tồn tại hay không
+    private void checkSerialCorrect(String serial) {
+        FirebaseDB.getInstance().reference.child(serial).addListenerForSingleValueEvent(new ValueEventListener() {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    serialCode = serial;
+                    binding.imgCheckSerial.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_check_24));
+                    showInputPin();
+                } else {
+                    binding.imgCheckSerial.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_close_24));
+                    binding.imgCheckSerial.setVisibility(View.VISIBLE);
+                    hideInputPin();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                throw databaseError.toException();
+            }
+        });
+    }
+    
+    private void showInputPin() {
+        binding.imgCheckSerial.setVisibility(View.VISIBLE);
+        binding.layoutPin.setVisibility(View.VISIBLE);
+        binding.layoutPin.setAlpha(0.0f);
+        binding.layoutPin.animate()
+                .translationYBy(binding.layoutPin.getHeight() * -1)
+                .translationY(0)
+                .alpha(1.0f)
+                .setDuration(600)
+                .setListener(null);
+        binding.inputPin.requestFocus();
+    }
+
+    private  void hideInputPin() {
+
+        if (binding.layoutPin.getVisibility() == View.VISIBLE) {
+            String s = binding.inputPin.getText().toString();
+            binding.inputPin.setText(" " + s + " ");
+            binding.layoutPin.animate()
+                    .translationYBy(binding.layoutPin.getHeight())
+                    .translationY(0)
+                    .setDuration(600)
+                    .alpha(0f)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            binding.layoutPin.setVisibility(View.GONE);
+                            binding.layoutNewPin.setVisibility(View.GONE);
+                            binding.inputNewPin.setText("");
+                            binding.inputPin.setText("");
+                        }
+                    });
+        }
+    }
+
+    
+    private void PinTextChage() {
+        binding.inputPin.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -126,37 +180,13 @@ public class HelloActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                if (charSequence.toString().equals("quy")) {
-                    binding.imgCheckPass.setVisibility(View.VISIBLE);
-                    binding.layoutNewPass.setVisibility(View.VISIBLE);
-                    binding.layoutNewPass.setAlpha(0.0f);
-                    binding.layoutNewPass.animate()
-                            .translationYBy(binding.layoutNewPass.getHeight() * -1)
-                            .translationY(0)
-                            .alpha(1.0f)
-                            .setDuration(600)
-                            .setListener(null);
-                    binding.inputKeyNewPass.requestFocus();
+                if(charSequence.length() == 10) {
+                    checkInputPin(charSequence.toString());
                 } else {
-                    binding.imgCheckPass.setVisibility(View.GONE);
-                    if (binding.layoutNewPass.getVisibility() == View.VISIBLE) {
-
-                        binding.layoutNewPass.animate()
-                                .translationYBy(binding.layoutNewPass.getHeight())
-                                .translationY(0)
-                                .setDuration(600)
-                                .alpha(0f)
-                                .setListener(new AnimatorListenerAdapter() {
-                                    @Override
-                                    public void onAnimationEnd(Animator animation) {
-                                        super.onAnimationEnd(animation);
-                                        binding.layoutNewPass.setVisibility(View.GONE);
-                                        binding.inputKeyNewPass.setText("");
-                                    }
-                                });
-                    }
+                    binding.imgCheckPin.setVisibility(View.GONE);
+                    hideInputNewPin();
                 }
+
             }
 
             @Override
@@ -166,8 +196,68 @@ public class HelloActivity extends AppCompatActivity {
         });
     }
 
-    private void checkNewPass() {
-        binding.inputKeyNewPass.addTextChangedListener(new TextWatcher() {
+    // kiểm tra mã pin có chính xác hay không
+    private void checkInputPin(String pin) {
+        FirebaseDB.getInstance().reference.child(serialCode).child("Pin").addListenerForSingleValueEvent(new ValueEventListener() {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (pin.equals(dataSnapshot.getValue(String.class))) {
+                    pinCode = pin;
+                    binding.imgCheckPin.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_check_24));
+                    showInputNewPin();
+                } else {
+                    binding.imgCheckPin.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_close_24));
+                    binding.imgCheckPin.setVisibility(View.VISIBLE);
+                    hideInputNewPin();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                throw databaseError.toException();
+            }
+        });
+    }
+
+
+    private void showInputNewPin() {
+        binding.imgCheckPin.setVisibility(View.VISIBLE);
+        binding.layoutNewPin.setVisibility(View.VISIBLE);
+        binding.layoutNewPin.setAlpha(0.0f);
+        binding.layoutNewPin.animate()
+                .translationYBy(binding.layoutNewPin.getHeight() * -1)
+                .translationY(0)
+                .alpha(1.0f)
+                .setDuration(600)
+                .setListener(null);
+        binding.inputNewPin.requestFocus();
+    }
+
+    private void hideInputNewPin() {
+        if (binding.layoutNewPin.getVisibility() == View.VISIBLE) {
+
+            binding.layoutNewPin.animate()
+                    .translationYBy(binding.layoutNewPin.getHeight())
+                    .translationY(0)
+                    .setDuration(600)
+                    .alpha(0f)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            binding.layoutNewPin.setVisibility(View.GONE);
+                            binding.inputNewPin.setText("");
+                            binding.inputNewPin.setError(null);
+                        }
+                    });
+        }
+    }
+
+    // kiểm tra tính bảo mật của mã pin mới
+    private void checkNewPin() {
+        binding.inputNewPin.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -175,14 +265,23 @@ public class HelloActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(charSequence.toString().length() > 5){
+                if (isStrong(charSequence.toString())) {
                     binding.btnSubmit.setEnabled(true);
                     binding.btnSubmit.setBackgroundColor(Color.parseColor("#3B8F3E"));
                     binding.btnSubmit.setTextColor(Color.WHITE);
-                }else{
+                    binding.imgCheckNewPin.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_check_24));
+                    binding.imgCheckNewPin.setVisibility(View.VISIBLE);
+                } else {
                     binding.btnSubmit.setEnabled(false);
                     binding.btnSubmit.setBackgroundColor(Color.parseColor("#989898"));
                     binding.btnSubmit.setTextColor(Color.parseColor("#CDCDCD"));
+                    binding.imgCheckNewPin.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_close_24));
+                    binding.imgCheckNewPin.setVisibility(View.VISIBLE);
+
+                }
+
+                if(charSequence.length() < 10) {
+                    binding.imgCheckNewPin.setVisibility(View.GONE);
                 }
             }
 
@@ -193,6 +292,14 @@ public class HelloActivity extends AppCompatActivity {
         });
     }
 
+    // 10 ký tự bao gồm số, chữ cái, chữ in hoa
+    private boolean isStrong(String Pinword) {
+        String regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{10}$";
+        return Pinword.matches(regexp);
+    }
+
+
+    // cuộn xuống cuối màn hình
     private void focusEditText() {
         View lastChild = binding.scrollLayout.getChildAt(binding.scrollLayout.getChildCount() - 1);
         int bottom = lastChild.getBottom() + binding.scrollLayout.getPaddingBottom();
