@@ -10,6 +10,9 @@ import DEF
 import pandas as pd
 import json
 import numpy as np
+import logging
+
+logging.basicConfig(filename='history.log', encoding='utf-8', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 df = pd.read_excel('CSDL.xlsx')
 
@@ -17,11 +20,13 @@ cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 encodes = []
 for i in range(len(df.index)):
+    encs = []
     # for j in range(1, len(df.columns)):
-    for j in range(1, 2):
+    for j in range(1, 5):
         data = json.loads(df.loc[i].iat[j])
         enc = np.asarray(data["value"])
-        encodes.append(enc)
+        encs.append(enc)
+    encodes.append(encs)
 
 while True:
     ret, frame= cap.read()
@@ -33,18 +38,24 @@ while True:
     encodecurFrame = face_recognition.face_encodings(framS)
 
     for encodeFace, faceLoc in zip(encodecurFrame,facecurFrame): # lấy từng khuôn mặt và vị trí khuôn mặt hiện tại theo cặp
-        # matches = face_recognition.compare_faces(df,encodeFace)
-        
-        faceDis = face_recognition.face_distance(encodes, encodeFace)
-        print([f'{round((round((1 - x), 4) * 100),2)}%' for x in faceDis])
-    
-        matchIndex = np.argmin(faceDis) #đẩy về index của faceDis nhỏ nhất
-
-
-        if faceDis[matchIndex] < 0.50 :
+        recognitionRate = []
+        for i in encodes:
+            # matches = face_recognition.compare_faces(df,encodeFace)
+            faceDis = face_recognition.face_distance(i, encodeFace)
+            recognitionRate.append(faceDis.mean())
+            
+        print([f'{round((round((1 - x), 4) * 100),2)}%' for x in recognitionRate])
+        matchIndex = np.argmin(recognitionRate) #đẩy về index của faceDis nhỏ nhất
+        if recognitionRate[matchIndex] < 0.55 :
             name = df.loc[matchIndex].iat[0]
+            is_permit = df.loc[matchIndex].iat[5]
+            if is_permit:
+                logging.info(f'{name} truy cập - không hạn chế 😝😝')
+            else:
+                logging.warning(f'{name} truy cập - quyền hạn chế 😶😶‍🌫️😶‍🌫️')
         else:
             name = "Unknow"
+            logging.warning('Thằng lạ nào định cạy két này 😒😒😒 ?!!')
 
         #print tên lên frame
         y1, x2, y2, x1 = faceLoc
@@ -53,7 +64,7 @@ while True:
         cv2.putText(frame,name,(x2,y2),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
 
 
-    cv2.imshow('abc', frame)
+    cv2.imshow('Nhan Esc de thoat', frame)
     
     key = cv2.waitKey(1) # độ trễ 1/1000s
     if key == 27:  # bấm esc để thoát

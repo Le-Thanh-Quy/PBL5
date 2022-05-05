@@ -13,7 +13,7 @@ class NumpyArrayEncoder(JSONEncoder):
 
 path = "DataBase"
 subPath = os.listdir(path)
-susscess = True # mỗi người 5 tấm ảnh, nếu không đủ là false
+susscess = True # mỗi người 4 tấm ảnh, nếu không đủ là false
 
 encodes = []
 
@@ -31,12 +31,13 @@ for i in subPath:
     if(len(sEncodes) < 4):
         susscess = False
         break
+    sEncodes.append(False)
     encodes.append(sEncodes)
     
 # print(encodes)
 
 df = pd.DataFrame(encodes,
-                  columns = ['ec1', 'ec2', 'ec3', 'ec4'],
+                  columns = ['ec1', 'ec2', 'ec3', 'ec4', 'allowed'],
                   index = subPath)
 
 df.to_excel('CSDL.xlsx', sheet_name='Trang_tính1')
