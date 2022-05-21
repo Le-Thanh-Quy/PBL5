@@ -10,9 +10,6 @@ import DEF
 import pandas as pd
 import json
 import numpy as np
-import logging
-
-logging.basicConfig(filename='history.log', encoding='utf-8', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 df = pd.read_excel('CSDL.xlsx')
 
@@ -44,24 +41,28 @@ while True:
             faceDis = face_recognition.face_distance(i, encodeFace)
             recognitionRate.append(faceDis.mean())
             
-        print([f'{round((round((1 - x), 4) * 100),2)}%' for x in recognitionRate])
+        # print([f'{round((round((1 - x), 4) * 100),2)}%' for x in recognitionRate])
         matchIndex = np.argmin(recognitionRate) #đẩy về index của faceDis nhỏ nhất
         if recognitionRate[matchIndex] < 0.55 :
             name = df.loc[matchIndex].iat[0]
             is_permit = df.loc[matchIndex].iat[5]
             if is_permit:
-                logging.info(f'{name} truy cập - không hạn chế 😝😝')
+                typelog = 'info'
+                log = f'{name} truy cập - không hạn chế 😝😝'
             else:
-                logging.warning(f'{name} truy cập - quyền hạn chế 😶😶‍🌫️😶‍🌫️')
+                typelog = 'warning'
+                log = f'{name} truy cập - quyền hạn chế 😶😶‍🌫️😶‍🌫️'
         else:
             name = "Unknow"
-            logging.warning('Thằng lạ nào định cạy két này 😒😒😒 ?!!')
+            typelog = 'warning'
+            log = 'Thằng lạ nào định cạy két này 😒😒😒 ?!!'
 
         #print tên lên frame
         y1, x2, y2, x1 = faceLoc
         y1, x2, y2, x1 = y1*2, x2*2, y2*2, x1*2
         cv2.rectangle(frame,(x1,y1), (x2,y2),(0,255,0),2)
         cv2.putText(frame,name,(x2,y2),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
+        DEF.savePicThread(name, frame, typelog, log)
 
 
     cv2.imshow('Nhan Esc de thoat', frame)
