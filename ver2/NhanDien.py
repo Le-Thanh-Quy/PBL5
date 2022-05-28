@@ -1,13 +1,16 @@
+import os
 import cv2
+import DEF
 import pickle
 
-face_cascade = cv2.CascadeClassifier('cascade/haarcascade_frontalface_alt2.xml')
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+face_cascade = cv2.CascadeClassifier(BASE_DIR + '\\cascade\\haarcascade_frontalface_alt2.xml')
+name = typelog = log = ''
 recognizer = cv2.face.LBPHFaceRecognizer_create()
-recognizer.read("./recognizers/face-trainner.yml")
+recognizer.read(BASE_DIR + "\\recognizers\\face-trainner.yml")
 
 labels = {"person_name": 1}
-with open("pickles/face-labels.pickle", 'rb') as f:
+with open(BASE_DIR + "\\pickles\\face-labels.pickle", 'rb') as f:
     og_labels = pickle.load(f)
     labels = {v:k for k,v in og_labels.items()}
     
@@ -25,12 +28,18 @@ while True:
         name = labels[id]
         font = cv2.FONT_HERSHEY_SIMPLEX
         if conf <= 60:
+            typelog = 'info'
+            log = f'{name} truy cập - không hạn chế 😝😝'
             cv2.putText(frame, name, (x+w + 16, y+h), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
         else:
+            name = "Unknow"
+            typelog = 'warning'
+            log = 'Thằng lạ nào định cạy két này 😒😒😒 ?!!'
             cv2.putText(frame, "???", (x+w + 16, y+h), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
         
         cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 5)
         
+    DEF.savePicThread(name, frame, typelog, log)
     cv2.imshow('frame', frame)
     key = cv2.waitKey(250) # độ trễ 250/1000s
     if key == 27:  # bấm esc để thoát
