@@ -7,7 +7,7 @@ import trainingFace
 rg = r"[a-zA-Z][a-zA-Z1-9]*"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-face_cascade = cv2.CascadeClassifier(BASE_DIR + '\\cascade\\haarcascade_frontalface_alt2.xml')
+face_cascade = cv2.CascadeClassifier(BASE_DIR + '\\cascade\\haarcascade_frontalface_alt.xml')
 ten = input('Nhập vào tên của bạn không dấu: ')
 while not re.fullmatch(rg, ten):
     ten = input('Nhập vào tên của bạn không dấu: ')
@@ -23,8 +23,10 @@ while sl < soluong:
         framePos = frame[y:y+h, x:x+w]
         if not os.path.exists(BASE_DIR + f'\\DuLieuKhuonMat\\{ten}'):
             os.mkdir(BASE_DIR + f'\\DuLieuKhuonMat\\{ten}')
-        cv2.imwrite(BASE_DIR + f'\\DuLieuKhuonMat\\{ten}\\pic{sl}.png', frame)
-        sl += 1
+        ok, anh = DEF.KiemTraAnhOK(frame)
+        if ok == 1:
+            cv2.imwrite(BASE_DIR + f'\\DuLieuKhuonMat\\{ten}\\pic{sl}.png', frame)
+            sl += 1
         
         color = (255, 0, 0)
         stroke = 5

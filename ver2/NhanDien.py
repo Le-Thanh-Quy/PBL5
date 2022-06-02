@@ -4,7 +4,7 @@ import DEF
 import pickle
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-face_cascade = cv2.CascadeClassifier(BASE_DIR + '\\cascade\\haarcascade_frontalface_alt2.xml')
+face_cascade = cv2.CascadeClassifier(BASE_DIR + '\\cascade\\haarcascade_frontalface_alt.xml')
 name = typelog = log = ''
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 recognizer.read(BASE_DIR + "\\recognizers\\face-trainner.yml")

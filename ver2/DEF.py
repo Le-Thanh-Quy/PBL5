@@ -2,10 +2,13 @@ import cv2
 import threading
 import os
 from datetime import datetime
+from PIL import Image
 import pyrebase
 import logging
+import numpy as np
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+face_cascade = cv2.CascadeClassifier(BASE_DIR + '\\cascade\\haarcascade_frontalface_alt.xml')
 config = {
     "apiKey": "AIzaSyCyArj4NRLaeQqVzgZZ07BGKyc90xpN6z0",
     "authDomain": "test-3107.firebaseapp.com",
@@ -38,3 +41,9 @@ def savePic(name, pic, typelog, log):
 def savePicThread(name, pic, typelog, log):
     thr1 = threading.Thread(target=savePic, args=(name, pic, typelog, log,))
     thr1.start()
+    
+def KiemTraAnhOK(anh):
+    grayPic = cv2.cvtColor(anh, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(grayPic, scaleFactor = 1.5, minNeighbors = 5)
+    print(len(faces))
+    return len(faces), anh
