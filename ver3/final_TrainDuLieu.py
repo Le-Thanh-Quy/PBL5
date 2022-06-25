@@ -9,6 +9,7 @@ import face_recognition
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 
 def training():
+    nnn = 0
     current_id = 0
     label_ids = {}
     y_labels = []
@@ -17,6 +18,8 @@ def training():
     for root, dirs, files in os.walk("DuLieuKhuonMat"):
         for file in files:
             if file.endswith("png") or file.endswith("jpg"):
+                print(nnn)
+                nnn += 1
                 path = os.path.join(root, file)
                 label = os.path.basename(root).replace(" ", "-").lower()
                 if not label in label_ids:
@@ -29,6 +32,7 @@ def training():
                 
                 for top, right, bottom, left in faces:
                     face = image_array[top:bottom, left:right]
+                    face = cv2.resize(face, (84, 96))
                     try:
                         cv2.imwrite('Training.png', face)
                         x_train.append(face)
@@ -42,4 +46,4 @@ def training():
     recognizer.train(x_train, np.array(y_labels))
     recognizer.save("recognizers/Train_KhuonMat.yml")
     
-training()
+# training()
