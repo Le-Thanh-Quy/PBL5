@@ -2,13 +2,13 @@ import cv2
 import DEF
 import face_recognition
 import pickle
-import testTrangThai
+import FirebaseHelper
 import final_TrainDuLieu
 
 name = typelog = log = ''
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 recognizer.read("recognizers/Train_KhuonMat.yml")
-testTrangThai.ChayTrangThai()
+FirebaseHelper.ChayTrangThai()
 
 labels = {"person_name": 1}
 with open("pickles/face_labels.pickle", 'rb') as f:
@@ -19,7 +19,7 @@ cap = cv2.VideoCapture(0)
 
 while True:
     ret, frame = cap.read()
-    tthai = testTrangThai.GetTrangThai()
+    tthai = FirebaseHelper.GetTrangThai()
     print(f'{tthai}')
     # grayPic = cv2.resize(frame, (0, 0), None, fx = 0.5, fy = 0.5)
     if tthai == 1:
@@ -50,7 +50,7 @@ while True:
     
     elif tthai == 2:
         final_TrainDuLieu.training()
-        testTrangThai.ChangeTrangThai(1)
+        FirebaseHelper.ChangeTrangThai(1)
     
     cv2.imshow('frame', frame)
     key = cv2.waitKey(1000) # độ trễ 250/1000s
