@@ -6,7 +6,7 @@ from firebase_admin import storage
 
 
 cred = credentials.Certificate(
-    'C:\\Users\\ADMIN\\Desktop\\DoAN\\PBL5\\serviceAccountKey.json')
+    'C:\\Users\\ADMIN\\Desktop\\DoAN\\Code\\PBL5\\serviceAccountKey.json')
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://pi3b-162b7-default-rtdb.asia-southeast1.firebasedatabase.app/',
     'storageBucket': 'pi3b-162b7.appspot.com'

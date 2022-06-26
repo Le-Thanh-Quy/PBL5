@@ -1,8 +1,8 @@
-import imp
 import os
 import re
-import time
 import cv2
+import face_recognition
+import time
 from recognition import DEF, trainingFace
 
 def lcd_print(content, delay):
@@ -10,49 +10,41 @@ def lcd_print(content, delay):
     print(content)
 
 def start_recognize_and_training(SERIAL):
-    rg = r"[a-zA-Z][a-zA-Z1-9]*"
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-    face_cascade = cv2.CascadeClassifier(
-    BASE_DIR + '\\cascade\\haarcascade_frontalface_alt.xml')
+    path_default = "C:\\Users\\ADMIN\\Desktop\\DoAN\\Code\\PBL5\\recognition\\DuLieuKhuonMat\\"
     ten = SERIAL
     cap = cv2.VideoCapture(0)
     soluong = 52
     sl = 0
-    uri = ""
+    count = 0
     while sl < soluong:
         lcd_print("Training..." + str(int(sl/soluong * 100)) + "%", 0)
         ret, frame = cap.read()
-        grayPic = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(
-            grayPic, scaleFactor=1.5, minNeighbors=5)
-        count = 0
-        for x, y, w, h in faces:
+        grayPic = cv2.resize(frame, (0, 0), None, fx = 0.5, fy = 0.5)
+        grayPic = cv2.cvtColor(grayPic, cv2.COLOR_BGR2GRAY)
+        
+        faces = face_recognition.face_locations(grayPic) 
+        
+        for y1, x2, y2, x1 in faces:
             count = count + 1
-            grayPos = grayPic[y:y+h, x:x+w]
-            framePos = frame[y:y+h, x:x+w]
-            if not os.path.exists(BASE_DIR + f'\\DuLieuKhuonMat\\{ten}'):
-                os.mkdir(BASE_DIR + f'\\DuLieuKhuonMat\\{ten}')
-            ok, anh = DEF.KiemTraAnhOK(frame)
-            if ok == 1:
-                if count == len(faces):
-                    uri =  "C:\\Users\\ADMIN\\Desktop\\DoAN\\PBL5\\recognition\\DuLieuKhuonMat\\" + str(ten) + "\\pic" + str(sl) + ".png"
-                cv2.imwrite(
-                    BASE_DIR + f'\\DuLieuKhuonMat\\{ten}\\pic{sl}.png', frame)
-                sl += 1
+            if not os.path.exists(f'{path_default}{ten}'):
+                os.mkdir(f'{path_default}{ten}')
+            cv2.imwrite(f'{path_default}{ten}\\pic{sl}.png', frame)
+            sl += 1
+            if count == len(faces):
+                uri =  path_default + str(ten) + "\\pic" + str(sl) + ".png"
 
             color = (255, 0, 0)
             stroke = 5
-            cv2.rectangle(frame, (x, y), (x+w, y+h), color, stroke)
+            cv2.rectangle(frame, (x1*2, y1*2), (x2*2, y2*2), color, stroke)
+            framePos = frame[y1*2:y2*2, x1*2:x2*2]
             
-
-        content = f'{sl}/{soluong}'
-        cv2.putText(frame, content, (16, 16), cv2.FONT_HERSHEY_SIMPLEX,
-                    1, (255, 255, 255), 2, cv2.LINE_AA)
+        content = f'{sl}/{soluong}'    
+        cv2.putText(frame, content, (16, 16), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.imshow('frame', frame)
-        key = cv2.waitKey(250)  # độ trễ 250/1000s
+        key = cv2.waitKey(250) # độ trễ 250/1000s
         if key == 27:  # bấm esc để thoát
             break
-    cap.release()
-    cv2.destroyAllWindows()  
+
+    cap.release()  # giải phóng camera
+    cv2.destroyAllWindows()  # thoát tất cả các cửa sổ
     return trainingFace.training(), uri
