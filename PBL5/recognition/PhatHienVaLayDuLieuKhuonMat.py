@@ -13,9 +13,8 @@ def start_recognize_and_training(SERIAL):
     path_default = "C:\\Users\\ADMIN\\Desktop\\DoAN\\Code\\PBL5\\recognition\\DuLieuKhuonMat\\"
     ten = SERIAL
     cap = cv2.VideoCapture(0)
-    soluong = 52
+    soluong = 25
     sl = 0
-    count = 0
     while sl < soluong:
         lcd_print("Training..." + str(int(sl/soluong * 100)) + "%", 0)
         ret, frame = cap.read()
@@ -25,14 +24,10 @@ def start_recognize_and_training(SERIAL):
         faces = face_recognition.face_locations(grayPic) 
         
         for y1, x2, y2, x1 in faces:
-            count = count + 1
             if not os.path.exists(f'{path_default}{ten}'):
                 os.mkdir(f'{path_default}{ten}')
             cv2.imwrite(f'{path_default}{ten}\\pic{sl}.png', frame)
             sl += 1
-            if count == len(faces):
-                uri =  path_default + str(ten) + "\\pic" + str(sl) + ".png"
-
             color = (255, 0, 0)
             stroke = 5
             cv2.rectangle(frame, (x1*2, y1*2), (x2*2, y2*2), color, stroke)
@@ -47,4 +42,4 @@ def start_recognize_and_training(SERIAL):
 
     cap.release()  # giải phóng camera
     cv2.destroyAllWindows()  # thoát tất cả các cửa sổ
-    return trainingFace.training(), uri
+    return trainingFace.training()

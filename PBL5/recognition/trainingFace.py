@@ -27,15 +27,16 @@ def training():
                     label_ids[label] = current_id
                     current_id += 1
                 id_ = label_ids[label]
-                pil_image = Image.open(path).convert("L")
-                image_array = np.array(pil_image, "uint8")
+                # pil_image = Image.open(path).convert("L")
+                pil_image = cv2.imread(path)
+                # image_array = np.array(pil_image, "uint8")
+                image_array = cv2.cvtColor(pil_image, cv2.COLOR_BGR2GRAY)
                 faces = face_recognition.face_locations(image_array)
                 
                 for top, right, bottom, left in faces:
                     face = image_array[top:bottom, left:right]
                     face = cv2.resize(face, (84, 96))
                     try:
-                        cv2.imwrite('Training.png', face)
                         x_train.append(face)
                         y_labels.append(id_)
                     except:
